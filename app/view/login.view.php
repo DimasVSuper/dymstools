@@ -1,3 +1,6 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -105,7 +108,7 @@
             margin-bottom: 14px;
             font-size: 0.98rem;
         }
-        .popup-larang {
+        .popup-larang, .popup-fitur {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(34,34,59,0.18);
@@ -146,6 +149,22 @@
             from { transform: scale(0.8); opacity: 0;}
             to { transform: scale(1); opacity: 1;}
         }
+        .btn-tamu {
+            margin-top: 10px;
+            width: 100%;
+            padding: 12px;
+            background: #b0b0b0;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-tamu:hover {
+            background: #888;
+        }
     </style>
 </head>
 <body>
@@ -156,13 +175,14 @@
         <?php if (!empty($error)) : ?>
             <div class="error-message"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
-        <form class="login-form" method="post" action="/login">
+        <form class="login-form" method="post" action="<?= base_url('login') ?>">
             <input type="text" name="username" placeholder="Username" required autofocus>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Masuk</button>
         </form>
+        <button class="btn-tamu" id="btnTamu" type="button">Masuk sebagai Tamu</button>
         <div class="login-footer">
-            Belum punya akun? <a href="<?= rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/register' ?>">Daftar</a>
+            Belum punya akun? <a href="<?= base_url('register') ?>">Daftar</a>
         </div>
     </div>
     <?php if (!empty($_SESSION['auth_error'])): ?>
@@ -172,54 +192,70 @@
                 <div class="popup-title">Akses Dilarang</div>
                 <div class="popup-desc">
                     Login dahulu untuk mengakses halaman ini.<br>
-                    Belum punya akun? <a href="<?= dirname($_SERVER['SCRIPT_NAME']) !== '/' ? dirname($_SERVER['SCRIPT_NAME']) . '/register' : '/register' ?>">Daftar di sini</a>
+                    Belum punya akun? <a href="<?= base_url('register') ?>">Daftar di sini</a>
                 </div>
             </div>
         </div>
         <?php unset($_SESSION['auth_error']); endif; ?>
-        <script>
-document.querySelector('.login-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
+    <script>
+    // AJAX login
+    document.querySelector('.login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
 
-    // Hapus error lama
-    const oldError = document.querySelector('.error-message');
-    if (oldError) oldError.remove();
+        // Hapus error lama
+        const oldError = document.querySelector('.error-message');
+        if (oldError) oldError.remove();
 
-    try {
-        const res = await fetch(form.action || '', {
-            method: 'POST',
-            body: formData
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-
-        // Cek apakah response JSON valid
-        const text = await res.text();
-        let data;
         try {
-            data = JSON.parse(text);
-        } catch (err) {
-            throw new Error('Server tidak membalas JSON. Cek backend!');
-        }
+            const res = await fetch(form.action || '', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
 
-        if (data.success) {
-            window.location.href = data.redirect || '/home';
-        } else {
+            // Cek apakah response JSON valid
+            const text = await res.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (err) {
+                throw new Error('Server tidak membalas JSON. Cek backend!');
+            }
+
+            if (data.success) {
+                window.location.href = data.redirect || '<?= base_url('home') ?>';
+            } else {
+                const errDiv = document.createElement('div');
+                errDiv.className = 'error-message';
+                errDiv.textContent = data.error || 'Login gagal!';
+                form.parentNode.insertBefore(errDiv, form);
+            }
+        } catch (err) {
             const errDiv = document.createElement('div');
             errDiv.className = 'error-message';
-            errDiv.textContent = data.error || 'Login gagal!';
+            errDiv.textContent = err.message || 'Terjadi kesalahan koneksi/server!';
             form.parentNode.insertBefore(errDiv, form);
         }
-    } catch (err) {
-        const errDiv = document.createElement('div');
-        errDiv.className = 'error-message';
-        errDiv.textContent = err.message || 'Terjadi kesalahan koneksi/server!';
-        form.parentNode.insertBefore(errDiv, form);
-    }
-});
-</script>
+    });
+
+    // Tombol tamu
+    document.getElementById('btnTamu').addEventListener('click', function() {
+        // Simpan status tamu di sessionStorage
+        sessionStorage.setItem('is_guest', '1');
+        // Hapus session user jika ada (agar benar-benar tamu)
+        <?php
+        // Pastikan session user dihapus jika sebelumnya login
+        unset($_SESSION['user']);
+        ?>
+        window.location.href = '<?= base_url('home') ?>';
+    });
+
+    // Tidak perlu popup tamu di halaman login.
+    // Popup hanya ditampilkan di halaman fitur jika tamu.
+    </script>
 </body>
 </html>

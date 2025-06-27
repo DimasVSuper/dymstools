@@ -6,7 +6,7 @@ $isLoggedIn = !empty($_SESSION['user']);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>404 Not Found | Productivity App</title>
+    <title>404 Not Found | DymsProductivity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root {
@@ -78,8 +78,8 @@ $isLoggedIn = !empty($_SESSION['user']);
             Oops! Halaman <b><?= htmlspecialchars($_SERVER['REQUEST_URI']) ?></b> tidak ditemukan.<br>
             Mungkin sudah dipindahkan atau dihapus.
         </p>
-        <a href="<?= $isLoggedIn ? '/home' : '/login' ?>">
-            Kembali ke tempat semula
+        <a href="<?= $isLoggedIn ? base_url('home') : base_url('login') ?>">
+             Kembali ke tempat semula
         </a>
     </div>
 </body>

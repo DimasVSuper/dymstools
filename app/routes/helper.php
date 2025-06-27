@@ -21,3 +21,14 @@ function view($name, $data = []) {
     extract($data);
     include $viewFile;
 }
+/**
+ * Helper function untuk mendapatkan URL dasar aplikasi.
+ *
+ * @param string $path Path tambahan yang ingin ditambahkan ke URL dasar
+ * @return string URL dasar aplikasi dengan path tambahan
+ */
+function base_url($path = '') {
+    $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+    if ($base === '/' || $base === '\\') $base = '';
+    return $base . '/' . ltrim($path, '/');
+}

@@ -1,3 +1,6 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -126,14 +129,14 @@
         <?php if (!empty($success)) : ?>
             <div class="success-message"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
-        <form class="register-form" method="post" action="">
+        <form class="register-form" method="post" action="<?= base_url('register') ?>">
             <input type="text" name="username" placeholder="Username" required autofocus>
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="password_confirm" placeholder="Konfirmasi Password" required>
             <button type="submit">Daftar</button>
         </form>
         <div class="register-footer">
-            Sudah punya akun? <a href="<?= rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/login' ?>">Login</a>
+            Sudah punya akun? <a href="<?= base_url('login') ?>">Login</a>
         </div>
     </div>
     <script>
@@ -160,7 +163,7 @@
 
         if (data.success) {
             // Redirect langsung ke login
-            window.location.href = data.redirect || '<?= dirname($_SERVER['SCRIPT_NAME']) !== '/' ? dirname($_SERVER['SCRIPT_NAME']) . '/login' : '/login' ?>';
+            window.location.href = data.redirect || '<?= base_url('login') ?>';
         } else {
             const errDiv = document.createElement('div');
             errDiv.className = 'error-message';
@@ -168,5 +171,9 @@
             form.parentNode.insertBefore(errDiv, form);
         }
     });
+
+    // Tidak perlu popup tamu di halaman registrasi.
+    // Popup hanya ditampilkan di halaman fitur jika tamu.
     </script>
 </body>
+</html>

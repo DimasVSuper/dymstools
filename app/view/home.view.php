@@ -6,7 +6,7 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Productivity App</title>
+    <title>Home | DymsProductivity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root {
@@ -101,7 +101,7 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
 </head>
 <body>
     <div class="header">
-        <form id="logoutForm" method="post" action="/logout" style="margin:0;">
+        <form id="logoutForm" method="post" action="<?= base_url('logout') ?>" style="margin:0;">
             <button type="submit" class="logout-btn">Logout</button>
         </form>
     </div>
@@ -124,21 +124,59 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
             Buat, kelola, dan tandai tugas harianmu.<br>
             Selesaikan targetmu setiap hari dengan mudah!
         </div>
-        <a class="hero-btn" href="<?= dirname($_SERVER['SCRIPT_NAME']) !== '/' ? dirname($_SERVER['SCRIPT_NAME']) . '/todolist' : '/todolist' ?>">
+        <a class="hero-btn" href="<?= base_url('todolist') ?>">
             Mulai ToDoList &nbsp;📝
         </a>
     </div>
 
-    <!-- Hero 3: Word to PDF Converter -->
+    <!-- Hero 3: Kalkulator -->
     <div class="hero">
-        <div class="hero-emoji">📄➡️📑</div>
-        <h2 class="hero-title">Word to PDF Converter</h2>
+        <div class="hero-emoji">🧮</div>
+        <h2 class="hero-title">Kalkulator</h2>
         <div class="hero-desc">
-            Ubah dokumen Word (.docx) menjadi PDF dengan cepat dan mudah.<br>
-            Praktis untuk kebutuhan tugas, laporan, dan lainnya!
+            Hitung dengan cepat dan mudah.<br>
+            Cocok untuk perhitungan sehari-hari!
         </div>
-        <a class="hero-btn" href="<?= dirname($_SERVER['SCRIPT_NAME']) !== '/' ? dirname($_SERVER['SCRIPT_NAME']) . '/wordtopdf' : '/wordtopdf' ?>">
-            Buka Converter &nbsp;🔄
+        <a class="hero-btn" href="<?= base_url('calculator') ?>">
+            Buka Kalkulator &nbsp;🧮
+        </a>
+    </div>
+
+    <!-- Hero 4 : Timer -->
+    <div class="hero">
+        <div class="hero-emoji">⏰</div>
+        <h2 class="hero-title">Timer Fokus</h2>
+        <div class="hero-desc">
+            Atur waktu fokusmu, mulai dan raih produktivitas maksimal!<br>
+            Cocok untuk teknik Pomodoro atau sesi belajar/kerja.
+        </div>
+        <a class="hero-btn" href="<?= base_url('timer') ?>">
+            Buka Timer &nbsp;⏰
+        </a>
+    </div>
+
+    <!-- Hero 5: QR Generator -->
+    <div class="hero">
+        <div class="hero-emoji">🔳</div>
+        <h2 class="hero-title">QR Generator</h2>
+        <div class="hero-desc">
+            Buat QR code dari teks atau link.<br>
+            Praktis, cepat, dan maskulin!
+        </div>
+        <a class="hero-btn" href="<?= base_url('qr') ?>">
+            Buka QR Generator &nbsp;🔳
+        </a>
+    </div>
+    <!-- Hero 6 : Unit Converter -->
+    <div class="hero">
+        <div class="hero-emoji">📏</div>
+        <h2 class="hero-title">Unit Converter</h2>
+        <div class="hero-desc">
+            Ubah satuan panjang, berat, suhu, dan lebih banyak lagi.<br>
+            Mudah dan cepat untuk kebutuhan sehari-hari!
+        </div>
+        <a class="hero-btn" href="<?= base_url('unit') ?>">
+            Buka Unit Converter &nbsp;📏
         </a>
     </div>
 
@@ -150,14 +188,17 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
     // AJAX logout, redirect ke login
     document.getElementById('logoutForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const res = await fetch('/logout', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const res = await fetch('<?= base_url('logout') ?>', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
         const data = await res.json();
         if (data.success && data.redirect) {
             window.location.href = data.redirect;
         } else {
-            window.location.href = '/login';
+            window.location.href = '<?= base_url('login') ?>';
         }
     });
+
+    // Tidak perlu popup tamu di halaman home.
+    // Popup hanya ditampilkan di halaman fitur
     </script>
-</body>
+    </body>
 </html>
