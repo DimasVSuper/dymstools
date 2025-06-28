@@ -311,24 +311,6 @@ chmod 666 app/model/NoteData.json
 
 ---
 
-## 📈 **Future Roadmap**
-
-### **v2.0 Planned Features**
-- 🗄️ **Database Integration** (MySQL/SQLite)
-- 👤 **User Authentication System**  
-- 📊 **Analytics Dashboard**
-- 🔌 **REST API** with authentication
-- 📱 **Progressive Web App** (PWA)
-- 🌐 **Multi-language Support**
-
-### **v3.0 Vision**
-- 🏢 **Multi-tenant Architecture**
-- ☁️ **Cloud Storage Integration**
-- 🤖 **AI-powered Features**
-- 📈 **Advanced Analytics**
-
----
-
 ## 🤝 **Contributing**
 
 We welcome contributions! Please follow these guidelines:
