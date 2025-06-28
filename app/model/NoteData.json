@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "text": "test note",
+        "created_at": "2025-06-28 02:47:47"
+    },
+    {
+        "id": 2,
+        "text": "hey kamuh",
+        "created_at": "2025-06-28 02:47:51"
+    },
+    {
+        "id": 3,
+        "text": "aplikasi ini dibuat oleh dimas",
+        "created_at": "2025-06-28 02:47:59"
+    },
+    {
+        "id": 4,
+        "text": "sadasdasda",
+        "created_at": "2025-06-28 02:48:52"
+    },
+    {
+        "id": 5,
+        "text": "okasodksaodkasodsakdaskdoaskdoaksdoaskdoaskdoaskdosad",
+        "created_at": "2025-06-28 02:48:56"
+    }
+]

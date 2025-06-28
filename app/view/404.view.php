@@ -1,12 +1,8 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-$isLoggedIn = !empty($_SESSION['user']);
-?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>404 Not Found | DymsProductivity</title>
+    <title>404 Not Found | DymsTools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root {
@@ -78,8 +74,9 @@ $isLoggedIn = !empty($_SESSION['user']);
             Oops! Halaman <b><?= htmlspecialchars($_SERVER['REQUEST_URI']) ?></b> tidak ditemukan.<br>
             Mungkin sudah dipindahkan atau dihapus.
         </p>
-        <a href="<?= $isLoggedIn ? base_url('home') : base_url('login') ?>">
-             Kembali ke tempat semula
+        <a href="<?= base_url('home') ?>">
+             Kembali ke Beranda
         </a>
     </div>
 </body>
+</html>

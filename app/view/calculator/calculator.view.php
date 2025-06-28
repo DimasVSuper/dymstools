@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Calculator | DymsProductivity</title>
+    <title>Calculator | DymsTools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
@@ -82,48 +82,6 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         .calc-home:active {
             background: #4361ee;
         }
-        /* Popup tamu */
-        .popup-fitur {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(34,34,59,0.18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-        .popup-content {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(34,34,59,0.12);
-            padding: 32px 24px;
-            text-align: center;
-            max-width: 320px;
-            animation: popupIn .25s;
-        }
-        .popup-emoji {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        .popup-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #e63946;
-            margin-bottom: 10px;
-        }
-        .popup-desc {
-            color: #22223b;
-            font-size: 1.05rem;
-        }
-        .popup-desc a {
-            color: #3a86ff;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        @keyframes popupIn {
-            from { transform: scale(0.8); opacity: 0;}
-            to { transform: scale(1); opacity: 1;}
-        }
     </style>
 </head>
 <body>
@@ -192,34 +150,6 @@ if (session_status() === PHP_SESSION_NONE) session_start();
             }
         });
     });
-
-    // Popup tamu jika guest (sessionStorage)
-    <?php if (empty($_SESSION['user'])): ?>
-    if (sessionStorage.getItem('is_guest') === '1') {
-        document.body.insertAdjacentHTML('beforeend', `
-        <div class="popup-fitur">
-            <div class="popup-content">
-                <div class="popup-emoji">🔒</div>
-                <div class="popup-title">Fitur Terkunci</div>
-                <div class="popup-desc">
-                    Anda harus <b>login</b> atau <b>daftar akun</b> untuk menggunakan fitur ini.<br>
-                    <a href="<?= base_url('login') ?>" id="popupLoginBtn">Login</a> atau 
-                    <a href="<?= base_url('register') ?>" id="popupRegisterBtn">Daftar</a>
-                </div>
-            </div>
-        </div>
-        `);
-        // Tambahkan event klik agar popup bisa langsung redirect
-        document.getElementById('popupLoginBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = this.href;
-        });
-        document.getElementById('popupRegisterBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = this.href;
-        });
-    }
-    <?php endif; ?>
     </script>
 </body>
 </html>

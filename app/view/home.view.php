@@ -1,12 +1,8 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-$nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produktif!';
-?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Home | DymsProductivity</title>
+    <title>Home | DymsTools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         :root {
@@ -28,28 +24,6 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
             margin: 0;
             padding: 0;
             min-height: 100vh;
-        }
-        .header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            background: var(--card-bg);
-            box-shadow: var(--shadow);
-            padding: 16px 32px;
-        }
-        .logout-btn {
-            background: #e63946;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 20px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .logout-btn:hover {
-            background: #b71c1c;
         }
         .hero {
             background: var(--card-bg);
@@ -100,19 +74,13 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
     </style>
 </head>
 <body>
-    <div class="header">
-        <form id="logoutForm" method="post" action="<?= base_url('logout') ?>" style="margin:0;">
-            <button type="submit" class="logout-btn">Logout</button>
-        </form>
-    </div>
-
     <!-- Hero 1: Welcome -->
     <div class="hero">
         <div class="hero-emoji">🚀</div>
-        <h1 class="hero-title">Selamat Datang, <?= htmlspecialchars($nama) ?></h1>
+        <h1 class="hero-title">Selamat Datang di DymsTools!</h1>
         <div class="hero-desc">
-            Tingkatkan produktivitasmu dengan mengelola tugas harian secara mudah dan efisien.<br>
-            Mulai dengan membuat daftar tugas, tandai yang sudah selesai, dan capai targetmu setiap hari!
+            Tingkatkan aktivitasmu dengan berbagai alat sederhana dan efisien.<br>
+            Mulai dari daftar tugas, kalkulator, timer, QR code, hingga konversi satuan!
         </div>
     </div>
 
@@ -147,7 +115,7 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
         <div class="hero-emoji">⏰</div>
         <h2 class="hero-title">Timer Fokus</h2>
         <div class="hero-desc">
-            Atur waktu fokusmu, mulai dan raih produktivitas maksimal!<br>
+            Atur waktu fokusmu, mulai dan raih hasil maksimal!<br>
             Cocok untuk teknik Pomodoro atau sesi belajar/kerja.
         </div>
         <a class="hero-btn" href="<?= base_url('timer') ?>">
@@ -161,7 +129,7 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
         <h2 class="hero-title">QR Generator</h2>
         <div class="hero-desc">
             Buat QR code dari teks atau link.<br>
-            Praktis, cepat, dan maskulin!
+            Praktis dan cepat!
         </div>
         <a class="hero-btn" href="<?= base_url('qr') ?>">
             Buka QR Generator &nbsp;🔳
@@ -172,7 +140,7 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
         <div class="hero-emoji">📏</div>
         <h2 class="hero-title">Unit Converter</h2>
         <div class="hero-desc">
-            Ubah satuan panjang, berat, suhu, dan lebih banyak lagi.<br>
+            Ubah satuan panjang, berat, suhu, dan lainnya.<br>
             Mudah dan cepat untuk kebutuhan sehari-hari!
         </div>
         <a class="hero-btn" href="<?= base_url('unit') ?>">
@@ -180,25 +148,21 @@ $nama = isset($_SESSION['user']['nama']) ? $_SESSION['user']['nama'] : 'Produkti
         </a>
     </div>
 
-    <div class="footer">
-        &copy; <?= date('Y') ?> Productivity App &middot; Dibuat dengan <span style="color:#e63946;">&#10084;</span>
+    <!-- Hero 7: Note Publik -->
+    <div class="hero">
+        <div class="hero-emoji">🗒️</div>
+        <h2 class="hero-title">Note Publik</h2>
+        <div class="hero-desc">
+            Tempelkan catatan, ide, atau pesan singkat yang bisa dilihat dan dihapus siapa saja.<br>
+            Cocok untuk brainstorming, pesan publik, atau sekadar iseng!
+        </div>
+        <a class="hero-btn" href="<?= base_url('note') ?>">
+            Buka Note Publik &nbsp;🗒️
+        </a>
     </div>
 
-    <script>
-    // AJAX logout, redirect ke login
-    document.getElementById('logoutForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const res = await fetch('<?= base_url('logout') ?>', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        const data = await res.json();
-        if (data.success && data.redirect) {
-            window.location.href = data.redirect;
-        } else {
-            window.location.href = '<?= base_url('login') ?>';
-        }
-    });
-
-    // Tidak perlu popup tamu di halaman home.
-    // Popup hanya ditampilkan di halaman fitur
-    </script>
-    </body>
+    <div class="footer">
+        &copy; <?= date('Y') ?> DymsTools &middot; Dibuat dengan <span style="color:#e63946;">&#10084;</span>
+    </div>
+</body>
 </html>

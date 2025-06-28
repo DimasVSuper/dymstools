@@ -1,143 +1,22 @@
 <?php
 /**
- * Routing utama aplikasi ProductivityApp.
- * Menangani autentikasi, registrasi, tools, ToDoList AJAX, dan fallback 404.
- *
- * @package ProductivityApp
+ * Routing utama aplikasi ProductivityApp tanpa login/register.
+ * Semua fitur dapat diakses tanpa autentikasi.
  */
 
 require_once __DIR__ . '/Route.php';
 require_once __DIR__ . '/helper.php';
-require_once __DIR__ . '/../controller/LoginController.php';
 require_once __DIR__ . '/../controller/TodolistController.php';
-require_once __DIR__ . '/../model/UserModel.php';
-require_once __DIR__ . '/../middleware/Middleware.php';
+require_once __DIR__ . '/../controller/NoteController.php';
 
-use App\Middleware\Middleware;
-
-// ==================== AUTH & USER (GET/POST) ====================
+// ==================== HALAMAN UTAMA & FITUR ====================
 
 /**
- * Halaman utama (login).
+ * Halaman utama (home).
  */
 Route::get('/', function() {
-    Middleware::guestOnly();
-    view('login');
+    view('home');
 });
-
-/**
- * Halaman login.
- */
-Route::get('/login', function() {
-    Middleware::guestOnly();
-    view('login');
-});
-
-/**
- * Proses login user (POST).
- */
-Route::post('/login', function() {
-    Middleware::guestOnly();
-    $isAjax = (
-        (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
-        || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
-    );
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $result = LoginController::login($username, $password);
-
-    if ($isAjax) {
-        header('Content-Type: application/json');
-        echo json_encode($result);
-        exit;
-    } else {
-        if ($result['success']) {
-            header('Location: ' . $result['redirect']);
-            exit;
-        } else {
-            view('login', ['error' => $result['error']]);
-        }
-    }
-});
-
-/**
- * Proses logout user (POST).
- */
-Route::post('/logout', function() {
-    session_destroy();
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'redirect' => '/login']);
-    exit;
-});
-
-/**
- * Halaman registrasi.
- */
-Route::get('/register', function() {
-    Middleware::guestOnly();
-    view('registry');
-});
-
-/**
- * Proses registrasi user baru (POST).
- */
-Route::post('/register', function() {
-    Middleware::guestOnly();
-    $isAjax = (
-        (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest')
-        || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
-    );
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $password_confirm = $_POST['password_confirm'] ?? '';
-
-    // Validasi konfirmasi password
-    if ($password !== $password_confirm) {
-        $error = 'Konfirmasi password tidak cocok';
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'error' => $error]);
-        } else {
-            view('registry', ['error' => $error]);
-        }
-        return;
-    }
-
-    // Validasi username unik
-    if (UserModel::findByUsername($username)) {
-        $error = 'Username sudah terdaftar';
-        if ($isAjax) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'error' => $error]);
-        } else {
-            view('registry', ['error' => $error]);
-        }
-        return;
-    }
-
-    // Simpan user baru ke session (dummy)
-    $_SESSION['registered_users'][] = [
-        'id' => rand(100,999),
-        'username' => $username,
-        'password' => $password,
-        'nama' => $username,
-        'created_at' => date('Y-m-d H:i:s')
-    ];
-    $success = 'Registrasi berhasil, silakan login!';
-    if ($isAjax) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'redirect' => '/login']);
-    } else {
-        view('registry', ['success' => $success]);
-    }
-});
-
-// ==================== TOOLS & FITUR (GET) ====================
-
-/**
- * Halaman home setelah login/tamu.
- * Tidak pakai Middleware::check() agar tamu bisa akses home.
- */
 Route::get('/home', function() {
     view('home');
 });
@@ -146,7 +25,6 @@ Route::get('/home', function() {
  * Halaman ToDoList.
  */
 Route::get('/todolist', function() {
-    Middleware::check();
     view('todolist.todolist');
 });
 
@@ -154,7 +32,6 @@ Route::get('/todolist', function() {
  * Halaman Kalkulator.
  */
 Route::get('/calculator', function() {
-    Middleware::check();
     view('calculator.calculator');
 });
 
@@ -162,7 +39,6 @@ Route::get('/calculator', function() {
  * Halaman Timer.
  */
 Route::get('/timer', function() {
-    Middleware::check();
     view('Timer.Timer');
 });
 
@@ -170,7 +46,6 @@ Route::get('/timer', function() {
  * Halaman QR Code Generator.
  */
 Route::get('/qr', function() {
-    Middleware::check();
     view('qr.qr');
 });
 
@@ -178,7 +53,6 @@ Route::get('/qr', function() {
  * Halaman Unit Converter.
  */
 Route::get('/unit', function(){
-    Middleware::check();
     view('converter.unit');
 });
 
@@ -188,7 +62,6 @@ Route::get('/unit', function(){
  * Ambil semua todo (AJAX GET).
  */
 Route::get('/todolist/ajax', function() {
-    Middleware::check();
     TodolistController::index();
 });
 
@@ -196,7 +69,6 @@ Route::get('/todolist/ajax', function() {
  * Tambah todo baru (AJAX POST).
  */
 Route::post('/todolist/add', function() {
-    Middleware::check();
     TodolistController::add();
 });
 
@@ -204,7 +76,6 @@ Route::post('/todolist/add', function() {
  * Toggle status done todo (AJAX POST).
  */
 Route::post('/todolist/toggle', function() {
-    Middleware::check();
     TodolistController::toggle();
 });
 
@@ -212,8 +83,44 @@ Route::post('/todolist/toggle', function() {
  * Hapus todo (AJAX POST).
  */
 Route::post('/todolist/delete', function() {
-    Middleware::check();
     TodolistController::delete();
+});
+
+/**
+ * Update todo (AJAX POST).
+ */
+Route::post('/todolist/update', function() {
+    TodolistController::update();
+});
+
+// ==================== SECTION: NOTE PUBLIK ====================
+
+/**
+ * Halaman Note Publik.
+ */
+Route::get('/note', function() {
+    view('note.note');
+});
+
+/**
+ * Ambil semua note (AJAX GET).
+ */
+Route::get('/note/ajax', function() {
+    NoteController::index();
+});
+
+/**
+ * Tambah note baru (AJAX POST).
+ */
+Route::post('/note/add', function() {
+    NoteController::add();
+});
+
+/**
+ * Hapus note (AJAX POST).
+ */
+Route::post('/note/delete', function() {
+    NoteController::delete();
 });
 
 // ==================== 404 (GET) ====================

@@ -1,11 +1,9 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>ToDoList | DymsProductivity</title>
+    <title>ToDoList | DymsTools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         @import url('https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap');
@@ -102,6 +100,14 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         .todo-actions button:active {
             color: #b71c1c;
         }
+        .todo-actions .edit-btn {
+            color: #3a86ff;
+            margin-left: 0;
+            margin-right: 8px;
+        }
+        .todo-actions .edit-btn:active {
+            color: #4361ee;
+        }
         .todo-home {
             margin-top: 18px;
             display: inline-block;
@@ -116,47 +122,36 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         .todo-home:active {
             background: #22223b;
         }
-        /* Popup tamu */
-        .popup-fitur {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(34,34,59,0.18);
+        .edit-form {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            gap: 6px;
+            margin-bottom: 8px;
         }
-        .popup-content {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(34,34,59,0.12);
-            padding: 32px 24px;
-            text-align: center;
-            max-width: 320px;
-            animation: popupIn .25s;
+        .edit-form input[type="text"] {
+            flex: 1;
+            padding: 7px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-size: 1rem;
         }
-        .popup-emoji {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-        .popup-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #e63946;
-            margin-bottom: 10px;
-        }
-        .popup-desc {
-            color: #22223b;
-            font-size: 1.05rem;
-        }
-        .popup-desc a {
-            color: #3a86ff;
-            text-decoration: none;
+        .edit-form button {
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: none;
+            background: #219150;
+            color: #fff;
             font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        @keyframes popupIn {
-            from { transform: scale(0.8); opacity: 0;}
-            to { transform: scale(1); opacity: 1;}
+        .edit-form button:active {
+            background: #157347;
+        }
+        .edit-form .cancel-btn {
+            background: #e63946;
+        }
+        .edit-form .cancel-btn:active {
+            background: #b71c1c;
         }
     </style>
 </head>
@@ -164,7 +159,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
     <div class="todo-container">
         <div class="todo-emoji">📝</div>
         <div class="todo-title">ToDoList</div>
-        <div class="todo-desc">Catat tugas, target, atau ide harianmu.<br>Tambah, centang, hapus dengan mudah!</div>
+        <div class="todo-desc">Catat tugas, target, atau ide harianmu.<br>Tambah, edit, centang, hapus dengan mudah!</div>
         <form class="todo-form" id="todoForm" autocomplete="off">
             <input type="text" id="todoInput" placeholder="Tambah tugas baru..." maxlength="60" required>
             <input type="hidden" name="csrf_token" id="csrf_token" value="<?= \App\Middleware\Middleware::csrfToken() ?>">
@@ -179,12 +174,16 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         return document.getElementById('csrf_token').value;
     }
 
+    // State untuk edit
+    let editingId = null;
+
     // AJAX ToDoList (session backend)
     function fetchTodos() {
         fetch('<?= base_url('todolist/ajax') ?>')
             .then(res => res.json())
             .then(renderTodos);
     }
+
     function renderTodos(todos) {
         const list = document.getElementById('todoList');
         if (!todos || todos.length === 0) {
@@ -193,17 +192,32 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         }
         list.innerHTML = '';
         todos.forEach(todo => {
-            const div = document.createElement('div');
-            div.className = 'todo-item' + (todo.done ? ' done' : '');
-            div.innerHTML = `
-                <span style="flex:1;cursor:pointer;" onclick="toggleDone(${todo.id})">${todo.text}</span>
-                <span class="todo-actions">
-                    <button title="Hapus" onclick="deleteTodo(${todo.id});event.stopPropagation();">🗑️</button>
-                </span>
-            `;
-            list.appendChild(div);
+            if (editingId === todo.id) {
+                // Edit mode
+                const editDiv = document.createElement('div');
+                editDiv.className = 'edit-form';
+                editDiv.innerHTML = `
+                    <input type="text" id="editInput" value="${escapeHtml(todo.text)}" maxlength="60" required>
+                    <button onclick="submitEdit(${todo.id})">Simpan</button>
+                    <button class="cancel-btn" onclick="cancelEdit()">Batal</button>
+                `;
+                list.appendChild(editDiv);
+            } else {
+                // Normal mode
+                const div = document.createElement('div');
+                div.className = 'todo-item' + (todo.done ? ' done' : '');
+                div.innerHTML = `
+                    <span style="flex:1;cursor:pointer;" onclick="toggleDone(${todo.id})">${escapeHtml(todo.text)}</span>
+                    <span class="todo-actions">
+                        <button class="edit-btn" title="Edit" onclick="startEdit(${todo.id}, event)">✏️</button>
+                        <button title="Hapus" onclick="deleteTodo(${todo.id});event.stopPropagation();">🗑️</button>
+                    </span>
+                `;
+                list.appendChild(div);
+            }
         });
     }
+
     function addTodo(text) {
         fetch('<?= base_url('todolist/add') ?>', {
             method: 'POST',
@@ -211,8 +225,12 @@ if (session_status() === PHP_SESSION_NONE) session_start();
             body: 'text=' + encodeURIComponent(text) + '&csrf_token=' + encodeURIComponent(getCsrf())
         })
         .then(res => res.json())
-        .then(() => fetchTodos());
+        .then(() => {
+            editingId = null;
+            fetchTodos();
+        });
     }
+
     function deleteTodo(id) {
         fetch('<?= base_url('todolist/delete') ?>', {
             method: 'POST',
@@ -222,6 +240,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         .then(res => res.json())
         .then(() => fetchTodos());
     }
+
     function toggleDone(id) {
         fetch('<?= base_url('todolist/toggle') ?>', {
             method: 'POST',
@@ -231,6 +250,47 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         .then(res => res.json())
         .then(() => fetchTodos());
     }
+
+    function startEdit(id, event) {
+        event.stopPropagation();
+        editingId = id;
+        fetchTodos();
+    }
+
+    function cancelEdit() {
+        editingId = null;
+        fetchTodos();
+    }
+
+    function submitEdit(id) {
+        const input = document.getElementById('editInput');
+        const text = input.value.trim();
+        if (!text) return;
+        fetch('<?= base_url('todolist/update') ?>', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'id=' + encodeURIComponent(id) + '&text=' + encodeURIComponent(text) + '&csrf_token=' + encodeURIComponent(getCsrf())
+        })
+        .then(res => res.json())
+        .then(() => {
+            editingId = null;
+            fetchTodos();
+        });
+    }
+
+    // Escape HTML untuk mencegah XSS
+    function escapeHtml(text) {
+        return text.replace(/[&<>"']/g, function(m) {
+            return ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[m];
+        });
+    }
+
     document.getElementById('todoForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const input = document.getElementById('todoInput');
@@ -239,39 +299,16 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         addTodo(text);
         input.value = '';
     });
+
     // Expose for onclick
     window.deleteTodo = deleteTodo;
     window.toggleDone = toggleDone;
+    window.startEdit = startEdit;
+    window.cancelEdit = cancelEdit;
+    window.submitEdit = submitEdit;
+
     // Init
     fetchTodos();
-
-    // Popup tamu jika guest (sessionStorage)
-    <?php if (empty($_SESSION['user'])): ?>
-    if (sessionStorage.getItem('is_guest') === '1') {
-        document.body.insertAdjacentHTML('beforeend', `
-        <div class="popup-fitur">
-            <div class="popup-content">
-                <div class="popup-emoji">🔒</div>
-                <div class="popup-title">Fitur Terkunci</div>
-                <div class="popup-desc">
-                    Anda harus <b>login</b> atau <b>daftar akun</b> untuk menggunakan fitur ini.<br>
-                    <a href="<?= base_url('login') ?>" id="popupLoginBtn">Login</a> atau 
-                    <a href="<?= base_url('register') ?>" id="popupRegisterBtn">Daftar</a>
-                </div>
-            </div>
-        </div>
-        `);
-        // Tambahkan event klik agar popup bisa langsung redirect
-        document.getElementById('popupLoginBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = this.href;
-        });
-        document.getElementById('popupRegisterBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = this.href;
-        });
-    }
-    <?php endif; ?>
     </script>
 </body>
 </html>

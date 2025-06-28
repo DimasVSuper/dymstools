@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Model ToDoList dummy untuk ProductivityApp.
- * Menyediakan data to-do statis dan fitur CRUD ke session (tanpa database).
+ * Model ToDoList dummy untuk DymsTools.
+ * Menyediakan fitur CRUD ke session (tanpa database).
  *
- * @package ProductivityApp
+ * @package DymsTools
  */
 class TodolistModel
 {
@@ -12,27 +12,28 @@ class TodolistModel
      * Ambil semua todo dari session.
      * @return array
      */
-    public static function all()
+    public static function getAll()
     {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        // Data dummy awal jika belum ada di session
         if (!isset($_SESSION['todos'])) {
-            $_SESSION['todos'] = [
-                [
-                    'id' => 1,
-                    'text' => 'Belajar PHP',
-                    'done' => false,
-                    'created_at' => date('Y-m-d H:i:s')
-                ],
-                [
-                    'id' => 2,
-                    'text' => 'Ngopi dulu ☕',
-                    'done' => true,
-                    'created_at' => date('Y-m-d H:i:s')
-                ]
-            ];
+            $_SESSION['todos'] = [];
         }
         return $_SESSION['todos'];
+    }
+
+    /**
+     * Ambil satu todo berdasarkan id.
+     * @param int $id
+     * @return array|null
+     */
+    public static function get($id)
+    {
+        $todos = self::getAll();
+        foreach ($todos as $todo) {
+            if ($todo['id'] == $id) {
+                return $todo;
+            }
+        }
+        return null;
     }
 
     /**
@@ -42,8 +43,7 @@ class TodolistModel
      */
     public static function add($text)
     {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        $todos = self::all();
+        $todos = self::getAll();
         $newId = count($todos) > 0 ? max(array_column($todos, 'id')) + 1 : 1;
         $todo = [
             'id' => $newId,
@@ -51,8 +51,28 @@ class TodolistModel
             'done' => false,
             'created_at' => date('Y-m-d H:i:s')
         ];
-        array_unshift($_SESSION['todos'], $todo);
+        array_unshift($todos, $todo);
+        $_SESSION['todos'] = $todos;
         return $todo;
+    }
+
+    /**
+     * Update todo berdasarkan id.
+     * @param int $id
+     * @param array $data
+     * @return bool
+     */
+    public static function update($id, $data)
+    {
+        $todos = self::getAll();
+        foreach ($todos as $i => $todo) {
+            if ($todo['id'] == $id) {
+                $todos[$i] = array_merge($todo, $data);
+                $_SESSION['todos'] = $todos;
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -62,10 +82,11 @@ class TodolistModel
      */
     public static function toggle($id)
     {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        foreach ($_SESSION['todos'] as &$todo) {
+        $todos = self::getAll();
+        foreach ($todos as $i => $todo) {
             if ($todo['id'] == $id) {
-                $todo['done'] = !$todo['done'];
+                $todos[$i]['done'] = !$todo['done'];
+                $_SESSION['todos'] = $todos;
                 return true;
             }
         }
@@ -79,13 +100,22 @@ class TodolistModel
      */
     public static function delete($id)
     {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        foreach ($_SESSION['todos'] as $i => $todo) {
+        $todos = self::getAll();
+        foreach ($todos as $i => $todo) {
             if ($todo['id'] == $id) {
-                array_splice($_SESSION['todos'], $i, 1);
+                array_splice($todos, $i, 1);
+                $_SESSION['todos'] = $todos;
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Hapus semua todo.
+     */
+    public static function clear()
+    {
+        $_SESSION['todos'] = [];
     }
 }

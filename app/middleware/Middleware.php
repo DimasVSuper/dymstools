@@ -4,42 +4,6 @@ namespace App\Middleware;
 class Middleware
 {
     /**
-     * Cek apakah user sudah login.
-     * Jika belum, redirect ke login dan simpan pesan error.
-     */
-    public static function check()
-    {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (empty($_SESSION['user'])) {
-            $_SESSION['auth_error'] = 'Silakan login terlebih dahulu.';
-            header('Location: /login');
-            exit;
-        }
-    }
-
-    /**
-     * Cek jika user sudah login, redirect ke home.
-     * Untuk halaman login/daftar agar user tidak bisa akses jika sudah login.
-     */
-    public static function guestOnly()
-    {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (!empty($_SESSION['user'])) {
-            header('Location: /home');
-            exit;
-        }
-    }
-
-    /**
-     * Ambil user yang sedang login (atau null).
-     */
-    public static function user()
-    {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        return $_SESSION['user'] ?? null;
-    }
-
-    /**
      * Generate dan ambil CSRF token untuk form.
      * @return string
      */
