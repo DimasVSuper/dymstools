@@ -1,0 +1,14 @@
+{
+    "name": "dymstools/productivity-app",
+    "description": "Simple PHP productivity tools including TodoList, Timer, Calculator, QR Generator, Unit Converter, and Public Notes",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dimas Bayu Nugroho"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    }
+}
