@@ -349,10 +349,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 👨‍💻 **Author**
 
 **Dimas Bayu Nugroho**
-- 🌐 **Portfolio**: [Coming Soon]
-- 📧 **Email**: [Your Email]
-- 💼 **LinkedIn**: [Your LinkedIn]
-- 🐙 **GitHub**: [@yourusername](https://github.com/yourusername)
+- 📧 **Email**: [-]
+- 💼 **LinkedIn**: [-]
+- 🐙 **GitHub**: [@DimasVSuper](https://github.com/DimasVSuper)
 
 ---
 
